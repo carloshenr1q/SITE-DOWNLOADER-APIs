@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+/* Configurações padrão para todas caixas */
+*{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+:root{
+    --cor-primaria: #1A1A2E;
+    --cor-secundaria: #58FE56;
+    --cor-terciaria: #000;
+    --cor-quaternaria: white;
+}
+
+/* Configuração da caixa pai de todos  */
+body, html{
+    position: relative;
+    background-color: var(--cor-primaria);
+    width: 100vw;
+    height: 100vh;
+}
+header, main, footer{
+    margin: auto;
+    width: 70vw;
+    max-width: 850px;
+}
+header > div{
+    text-align: center;
+
+    color: var(--cor-secundaria);
+    text-shadow: 1px 2px 1px var(--cor-terciaria);
+    font-size: 18px;
+}
+header > div > img{
+    width: 300px;
+    margin: -20px 
+}
+
+
+main > div{
+    margin-bottom: 30px;
+
+    color: var(--cor-quaternaria);
+    text-align: justify;
+}
+main > ul{
+    color: var(--cor-quaternaria)   ;
+    font-size: 20px;
+    list-style: circle;
+    list-style-position: inside;
+
+    margin-top: -12px;
+
+}
+main > div#main-f{
+    margin-top: 30px;
+}
+footer{
+
+}

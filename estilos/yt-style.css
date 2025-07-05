@@ -1,0 +1,94 @@
+@charset "UTF-8";
+
+/* Configurações padrão para todas caixas */
+*{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: white;
+}
+html, body{
+    background-color: #1A1A2E;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+header, main{
+    margin: auto;
+    width: 70vw;
+    max-width: 850px;
+}
+header > div{
+    text-align: center;
+}
+header > div > img{
+    width: 300px;
+    margin: 20px 0px 30px 0px;
+}
+
+main{
+    background-color: rgb(26, 36, 66);
+    border: 1px solid #333;
+    border-radius: 5px;
+}
+main > div{
+    color: white;
+
+    text-align: center;
+    padding: 30px 10px 30px 10px;
+}
+main > div#link > label{
+    font-size: 18px;
+    font-family: 'Trebuchet MS', sans-serif;
+}
+main > div#link > input{
+    background-color: rgb(37, 52, 97);
+    border: 0;
+
+    font-size: 15px;
+
+    width: 50vw;
+    max-width: 750px;
+    height: 35px;
+    border-radius: 15px;
+    padding: 0px 0px 0px 10px;
+}
+main > div#button > input#baixar{
+    background-color: rgb(37, 52, 97);
+    border: 0;
+
+    font-size: 19px;
+    font-family: 'Trebuchet MS', sans-serif;
+
+    width: 100px;
+    height: 40px;
+    border-radius: 15px;
+    margin-top: -15px;
+}
+main > div#button > input#limpar{
+    background-color: rgb(37, 52, 97);
+    border: 0;
+
+    font-size: 19px;
+    font-family: 'Trebuchet MS', sans-serif;
+
+    width: 80px;
+    height: 40px;
+    border-radius: 15px;
+    margin-top: -15px;
+
+}
+main > div#button > input#baixar:active{
+    transition: all 50ms ease-in-out;
+    background-color: #1A1A2E;
+    border: 1px solid whitesmoke;
+}
+main > div#button > input#limpar:active{
+    transition: all 50ms ease-in-out;
+    background-color: #1A1A2E;
+    border: 1px solid whitesmoke;
+}
+main > div#button > span{
+    margin: 0px 10px 0px 10px;
+}

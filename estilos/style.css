@@ -1,0 +1,103 @@
+@charset "UTF-8";
+
+/* Configurações padrão para todas caixas */
+*{
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+:root{
+    --cor-primaria: rgb(26, 26, 46);
+    --cor-secundaria: rgb(52, 52, 92);
+}
+
+/* Configuração da caixa pai de todos  */
+body, html{
+    position: relative;
+    background-color: var(--cor-primaria);
+    width: 100%;
+    height: 100%;
+}
+/* Definindo a posição para que às outras caixas filha usem esta como referência */
+header{
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+/* Criando animação de puxar menu escondido à esquerda para direita. */
+menu{
+    transition: all 1.5s;
+}
+menu:hover{
+    transform: translateX(0.1px);
+}
+header > menu{
+    background-color: var(--cor-secundaria);
+    position: fixed;
+    left: 0;
+    transform: translateX(-200px);
+    width: 200px;
+    height: 100vh;
+}
+menu > div#menu-pull{
+    position: fixed;
+    cursor: pointer;
+    top: 0;
+    transform: translateX(199px);
+    width: 40px;
+    height: 40px;
+
+    background-color: var(--cor-secundaria);
+    border-radius: 0px 10px 10px 0px;
+}
+menu > div#menu-pull > p{
+    color: white;
+    font-size: 30px;
+    text-align: center;
+}
+menu > p > img{
+    width: 185px;
+    margin: 20px 0 0 5px;
+    padding: 0;
+}
+ul{
+    text-align: center;
+    margin: 50px 0 0 0;
+}
+ul > li{
+    
+}
+ul > li > a > img{
+    margin-bottom: 10px;
+    width: 165px;
+    transition: all 0.5s;
+}
+ul > li > a > img.img-x{
+    width: 114px;
+    height: 53px;
+    transition: all 0.5s;
+}
+ul > li > a > img.img-kwai{
+    width: 149px;
+    height: 50px;
+    transition: all 0.5s;
+}
+ul > li > a > img:hover{
+    width: 175px; 
+}
+ul > li > a > img.img-x:hover{
+    width: 120px;
+    height: 55px;
+}
+ul > li > a > img.img-kwai:hover{
+    width: 159px;
+    height: 53px;
+}
+
+/* Configurando estilo da parte principal do site, na qual um iframe ocupará toda a tela. */
+main > iframe{
+    width: 100%;
+    height: 99.6vh;
+}

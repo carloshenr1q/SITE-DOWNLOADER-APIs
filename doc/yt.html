@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloader YT</title>
+    <link rel="stylesheet" href="../estilos/yt-style.css">
+</head>
+<body>
+    <header>
+        <div>
+            <img src="image/logodsds.png" alt="">
+        </div>
+    </header>
+    <form action="php.php" method="post">
+    <main>
+            <div id="link">
+                <label for="iurl" name="url">Link:</label>
+                <input type="url" name="url" id="iurl" required placeholder="Insira a URL">
+            </div>
+            <div id="button">
+                <input onclick="baixar" id="baixar" type="submit" value="Download">
+                <span></span>
+                <span></span>
+                <input id="limpar" type="reset" value="Clean">
+            </div>
+        </main>
+    </form>
+    <script>
+    function baixar() {
+      const url = document.getElementById('iurl').value;
+      fetch('/baixar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+      })
+      .then(res => res.json())
+      .then(data => alert(data.status === 'sucesso' ? 'Download concluído!' : 'Erro: ' + data.mensagem));
+    }
+  </script>
+</body>
+</html>
