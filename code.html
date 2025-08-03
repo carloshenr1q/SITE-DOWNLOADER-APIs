@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ytdl-core@4.11.2/dist/ytdl-core.min.js"></script>
+    <style>
+        .loading-spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #4299e1;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        progress::-webkit-progress-value {
+            transition: width 0.1s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+                <div class="p-6 sm:p-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">YouTube Video Downloader</h1>
+                    <p class="text-gray-600 mb-6">Baixe vídeos do YouTube em vários formatos diretamente para seu dispositivo</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="youtube-url" placeholder="Cole o link do vídeo do YouTube aqui" class="flex-grow px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="fetch-btn" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            Buscar Vídeo
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <div id="spinner" class="loading-spinner"></div>
+                    </div>
+                    
+                    <div id="error-message" class="hidden mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                        <p>Ocorreu um erro ao processar o vídeo. Verifique se a URL está correta e tente novamente.</p>
+                    </div>
+                    
+                    <div id="video-info" class="hidden mt-6">
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-shrink-0">
+                                <img id="thumbnail" src="" alt="Thumbnail do vídeo" class="rounded-lg w-full md:w-64 h-auto object-cover">
+                            </div>
+                            <div>
+                                <h2 id="video-title" class="text-xl font-bold text-gray-800"></h2>
+                                <p id="video-author" class="text-gray-600 mt-1"></p>
+                                <p id="video-duration" class="text-gray-600 text-sm mt-2"></p>
+                                
+                                <div class="mt-6">
+                                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Formatos disponíveis</h3>
+                                    <div id="formats-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="progress-container" class="hidden bg-white rounded-xl shadow-lg overflow-hidden p-6 mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Progresso do Download</h3>
+                <progress id="download-progress" value="0" max="100" class="w-full h-2 bg-gray-200 rounded overflow-hidden"></progress>
+                <div class="flex justify-between mt-2 text-sm text-gray-600">
+                    <span id="progress-percent">0%</span>
+                    <span id="download-speed">0 kB/s</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Como usar</h2>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                    <li>Cole o URL do vídeo do YouTube na caixa de texto acima</li>
+                    <li>Clique em "Buscar Vídeo" para carregar as informações</li>
+                    <li>Selecione o formato desejado para download</li>
+                    <li>O download começará automaticamente</li>
+                </ol>
+                
+                <div class="mt-6">
+                    <h3 class="font-semibold text-gray-700 mb-2">Observações:</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                        <li>Vídeos longos podem demorar mais para processar</li>
+                        <li>A qualidade do vídeo depende do original no YouTube</li>
+                        <li>Não armazenamos nenhum vídeo em nossos servidores</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fetchBtn = document.getElementById('fetch-btn');
+            const youtubeUrl = document.getElementById('youtube-url');
+            const spinner = document.getElementById('spinner');
+            const errorMessage = document.getElementById('error-message');
+            const videoInfo = document.getElementById('video-info');
+            const progressContainer = document.getElementById('progress-container');
+            const downloadProgress = document.getElementById('download-progress');
+            const progressPercent = document.getElementById('progress-percent');
+            const downloadSpeed = document.getElementById('download-speed');
+            
+            let videoId = '';
+            let videoDetails = null;
+            let lastProgressTime = 0;
+            let lastProgressLoaded = 0;
+            
+            fetchBtn.addEventListener('click', fetchVideoInfo);
+            youtubeUrl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') fetchVideoInfo();
+            });
+            
+            async function fetchVideoInfo() {
+                const url = youtubeUrl.value.trim();
+                
+                if (!url) {
+                    showError('Por favor, insira um URL do YouTube');
+                    return;
+                }
+                
+                try {
+                    showLoading();
+                    hideError();
+                    
+                    videoId = ytdl.getURLVideoID(url);
+                    const info = await ytdl.getInfo(url);
+                    videoDetails = info;
+                    
+                    displayVideoInfo(info);
+                } catch (error) {
+                    console.error('Error fetching video info:', error);
+                    showError('Não foi possível carregar o vídeo. Verifique o URL e tente novamente.');
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            function displayVideoInfo(info) {
+                const thumbnail = document.getElementById('thumbnail');
+                const videoTitle = document.getElementById('video-title');
+                const videoAuthor = document.getElementById('video-author');
+                const videoDuration = document.getElementById('video-duration');
+                const formatsContainer = document.getElementById('formats-container');
+                
+                // Mostrar informações básicas
+                thumbnail.src = info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1].url;
+                videoTitle.textContent = info.videoDetails.title;
+                videoAuthor.textContent = `Por: ${info.videoDetails.author.name}`;
+                
+                // Converter duração para formato legível
+                const durationSec = parseInt(info.videoDetails.lengthSeconds);
+                const minutes = Math.floor(durationSec / 60);
+                const seconds = durationSec % 60;
+                videoDuration.textContent = `Duração: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Filtrar formatos disponíveis (remover áudio apenas e formatos sem áudio)
+                const filteredFormats = info.formats.filter(format => 
+                    format.hasVideo && format.hasAudio && format.container === 'mp4'
+                ).sort((a, b) => {
+                    // Ordenar por qualidade (resolução) decrescente
+                    if (a.height && b.height) return b.height - a.height;
+                    return 0;
+                });
+                
+                // Limpar e preencher formatos
+                formatsContainer.innerHTML = '';
+                
+                filteredFormats.forEach(format => {
+                    const formatCard = document.createElement('div');
+                    formatCard.className = 'video-card bg-gray-50 rounded-lg p-4 border border-gray-200 transition-all';
+                    
+                    const quality = format.qualityLabel || 'Desconhecida';
+                    const fileSize = format.contentLength ? 
+                        `(${(format.contentLength / (1024 * 1024)).toFixed(2)} MB)` : '';
+                    
+                    formatCard.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-medium text-gray-800">${quality}</h4>
+                                <p class="text-sm text-gray-500">${format.container.toUpperCase()} ${fileSize}</p>
+                            </div>
+                            <button class="download-btn px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors" data-url="${format.url}" data-quality="${quality}">
+                                Baixar
+                            </button>
+                        </div>
+                    `;
+                    
+                    formatsContainer.appendChild(formatCard);
+                });
+                
+                // Adicionar event listeners para os botões de download
+                document.querySelectorAll('.download-btn').forEach(btn => {
+                    btn.addEventListener('click', startDownload);
+                });
+                
+                videoInfo.classList.remove('hidden');
+            }
+            
+            function startDownload(e) {
+                const url = e.target.getAttribute('data-url');
+                const quality = e.target.getAttribute('data-quality');
+                
+                if (!url || !videoDetails) {
+                    showError('Informações do vídeo não disponíveis. Por favor, recarregue o vídeo.');
+                    return;
+                }
+                
+                // Criar nome do arquivo
+                const filename = `${videoDetails.videoDetails.title.replace(/[^\w\s]/gi, '')} - ${quality}.mp4`;
+                
+                // Configurar progresso
+                progressContainer.classList.remove('hidden');
+                downloadProgress.value = 0;
+                progressPercent.textContent = '0%';
+                downloadSpeed.textContent = '0 kB/s';
+                
+                // Usar streams para download com progresso
+                const stream = ytdl(videoId, { quality: quality });
+                const chunks = [];
+                let totalLength = 0;
+                let startTime = Date.now();
+                
+                stream.on('response', (res) => {
+                    totalLength = parseInt(res.headers['content-length'], 10);
+                });
+                
+                stream.on('data', (chunk) => {
+                    chunks.push(chunk);
+                    
+                    const loaded = chunks.reduce((a, b) => a + b.length, 0);
+                    const percent = Math.round((loaded / totalLength) * 100);
+                    const currentTime = Date.now();
+                    
+                    downloadProgress.value = percent;
+                    progressPercent.textContent = `${percent}%`;
+                    
+                    // Calcular velocidade de download
+                    if (currentTime - lastProgressTime >= 1000) {
+                        const loadedDiff = loaded - lastProgressLoaded;
+                        const timeDiff = (currentTime - lastProgressTime) / 1000;
+                        const speed = (loadedDiff / (1024 * timeDiff)).toFixed(1);
+                        
+                        downloadSpeed.textContent = `${speed} kB/s`;
+                        
+                        lastProgressTime = currentTime;
+                        lastProgressLoaded = loaded;
+                    }
+                });
+                
+                stream.on('end', () => {
+                    const blob = new Blob(chunks);
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    // Criar link de download e simular clique
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = blobUrl;
+                    downloadLink.download = filename;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // Liberar memória
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                    
+                    // Resetar progresso após 3 segundos
+                    setTimeout(() => {
+                        progressContainer.classList.add('hidden');
+                    }, 3000);
+                });
+                
+                stream.on('error', (err) => {
+                    console.error('Download error:', err);
+                    showError('Erro durante o download. Por favor, tente novamente.');
+                    progressContainer.classList.add('hidden');
+                });
+            }
+            
+            function showLoading() {
+                spinner.style.display = 'block';
+            }
+            
+            function hideLoading() {
+                spinner.style.display = 'none';
+            }
+            
+            function showError(message) {
+                errorMessage.querySelector('p').textContent = message;
+                errorMessage.classList.remove('hidden');
+            }
+            
+            function hideError() {
+                errorMessage.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

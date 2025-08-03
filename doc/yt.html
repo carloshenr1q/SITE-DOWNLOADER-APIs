@@ -3,40 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloader YT</title>
-    <link rel="stylesheet" href="../estilos/yt-style.css">
+    <title>Youtube DM</title>
+    <link rel="stylesheet" href="../estilos/yt-style.css ">
 </head>
 <body>
-    <header>
-        <div>
-            <img src="image/logodsds.png" alt="">
-        </div>
-    </header>
     <form action="php.php" method="post">
-    <main>
+        <main>
+            <div id="header">
+                <img src="image/yt-icon.png" alt="">
+                <h1>YouTube Video Downloader</h1>
+                <p>
+                    Baixe vídeos do YouTube em vários formatos diretamente para seu dispositivo
+                </p>
+            </div>
             <div id="link">
-                <label for="iurl" name="url">Link:</label>
-                <input type="url" name="url" id="iurl" required placeholder="Insira a URL">
+                <input type="url" name="url" id="iurl" required placeholder="Cole o link do vídeo do YouTube aqui">
             </div>
             <div id="button">
                 <input onclick="baixar" id="baixar" type="submit" value="Download">
                 <span></span>
                 <span></span>
-                <input id="limpar" type="reset" value="Clean">
+                <input id="limpar" type="reset" value="Limpar">
             </div>
         </main>
     </form>
+    <div id="message" style="color: white; text-align: center; margin-top: 20px;"></div>
     <script>
-    function baixar() {
-      const url = document.getElementById('iurl').value;
-      fetch('/baixar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url })
-      })
-      .then(res => res.json())
-      .then(data => alert(data.status === 'sucesso' ? 'Download concluído!' : 'Erro: ' + data.mensagem));
-    }
-  </script>
+        document.getElementById('download-form').onsubmit = function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+            const url = document.getElementById('iurl').value;
+            if (url) {
+                // Enviar o formulário via AJAX ou redirecionar para o PHP
+                window.location.href = 'php.php?url=' + encodeURIComponent(url);
+            } else {
+                document.getElementById('message').innerText = 'Por favor, insira uma URL válida.';
+            }
+        };
+    </script>
 </body>
 </html>
