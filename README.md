@@ -1,1 +1,1 @@
-
+Starting a local PHP server if testing locally: `php -S localhost:8000`

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../estilos/yt-style.css ">
 </head>
 <body>
-    <form action="php.php" method="post">
+    <form action="../server/php.php" method="get">
         <main>
             <div id="header">
                 <img src="image/yt-icon.png" alt="">
@@ -28,14 +28,14 @@
         </main>
     </form>
     <div id="message" style="color: white; text-align: center; margin-top: 20px;"></div>
+    <div id="loading" style="display: none; text-align: center;">
+        <p style="color: white;">Processando download...</p>
+    </div>
     <script>
         document.getElementById('download-form').onsubmit = function(event) {
-            event.preventDefault(); // Impede o envio padrão do formulário
             const url = document.getElementById('iurl').value;
-            if (url) {
-                // Enviar o formulário via AJAX ou redirecionar para o PHP
-                window.location.href = 'php.php?url=' + encodeURIComponent(url);
-            } else {
+            if (!url) {
+                event.preventDefault();
                 document.getElementById('message').innerText = 'Por favor, insira uma URL válida.';
             }
         };
